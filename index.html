@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JH Radio — DJ Companion</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg:#f4f4f2; --bg-panel:#eaeae6; --bg-card:#ffffff; --bg-raised:#eeeeea;
+    --border:rgba(0,0,0,0.08); --border-hi:rgba(0,0,0,0.16);
+    --text-pri:#111111; --text-sec:#556060; --text-dim:#aababa;
+    --teal:#2A9D8F; --teal-dim:rgba(42,157,143,0.12);
+    --orange:#F4A261; --orange-dim:rgba(244,162,97,0.15);
+    --saffron:#E9C46A; --saffron-dim:rgba(233,196,106,0.15);
+    --red:#c0392b; --red-dim:rgba(192,57,43,0.1);
+    --radius:8px; --radius-lg:12px;
+}
+body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; font-size:13px; color:var(--text-pri); min-height:100vh; display:flex; flex-direction:column; }
+
+header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:0 28px; height:52px; display:flex; align-items:center; justify-content:space-between; }
+.logo { display:flex; align-items:center; gap:10px; color:var(--teal); font-size:18px; }
+.logo-text { display:flex; flex-direction:column; line-height:1.2; }
+.logo-text .name { font-size:13px; font-weight:700; color:var(--text-pri); letter-spacing:0.06em; }
+.logo-text .sub { font-size:10px; color:var(--teal); font-family:monospace; }
+
+.main { flex:1; display:grid; grid-template-columns:1fr 300px; gap:24px; padding:24px; max-width:1000px; width:100%; margin:0 auto; }
+.left { display:flex; flex-direction:column; gap:16px; }
+.right { display:flex; flex-direction:column; gap:16px; }
+
+.section-label { font-size:9px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px; display:block; }
+
+.drop-zone { background:var(--bg-card); border:2px dashed var(--border-hi); border-radius:var(--radius-lg); padding:28px; text-align:center; cursor:pointer; transition:all 0.15s; position:relative; }
+.drop-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.drop-zone:hover, .drop-zone.drag-over { border-color:var(--teal); background:var(--teal-dim); }
+.drop-icon { font-size:26px; color:var(--teal); margin-bottom:8px; }
+.drop-title { font-size:14px; font-weight:600; color:var(--text-pri); margin-bottom:4px; }
+.drop-sub { font-size:11px; color:var(--text-dim); }
+
+.url-row { display:flex; gap:8px; }
+.input { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-pri); font-size:12px; padding:8px 11px; outline:none; transition:border-color 0.15s; }
+.input:focus { border-color:var(--teal); }
+.input::placeholder { color:var(--text-dim); }
+
+.crate-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; flex:1; }
+.crate-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg-panel); }
+.crate-header-left { display:flex; align-items:center; gap:8px; }
+.crate-count { background:var(--teal-dim); color:var(--teal); font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
+.crate-body { max-height:320px; overflow-y:auto; }
+.crate-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:140px; gap:8px; color:var(--text-dim); }
+.crate-empty i { font-size:22px; }
+
+.track-row { display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border); transition:background 0.1s; }
+.track-row:last-child { border-bottom:none; }
+.track-row:hover { background:var(--bg-raised); }
+.track-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.track-icon.local { background:var(--teal-dim); color:var(--teal); }
+.track-icon.url { background:var(--saffron-dim); color:#8a6a00; }
+.track-info { flex:1; overflow:hidden; }
+.track-name { font-size:12px; font-weight:500; color:var(--text-pri); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.track-meta { font-size:10px; color:var(--text-dim); font-family:monospace; margin-top:2px; }
+.track-status { font-size:9px; padding:2px 7px; border-radius:999px; flex-shrink:0; }
+.track-status.ready { background:var(--teal-dim); color:var(--teal); }
+.track-status.uploading { background:var(--orange-dim); color:#b06000; }
+.track-status.error { background:var(--red-dim); color:var(--red); }
+.track-remove { width:22px; height:22px; border:none; background:none; color:var(--text-dim); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:var(--radius); transition:all 0.15s; }
+.track-remove:hover { background:var(--red-dim); color:var(--red); }
+.upload-progress { height:2px; background:var(--border); border-radius:1px; overflow:hidden; margin-top:4px; }
+.upload-progress-fill { height:100%; background:var(--teal); border-radius:1px; transition:width 0.2s; }
+
+.link-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
+.link-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; }
+.link-box { background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-family:monospace; font-size:10px; color:var(--text-sec); word-break:break-all; min-height:52px; line-height:1.6; margin-bottom:10px; }
+.link-placeholder { color:var(--text-dim); font-style:italic; }
+
+.steps-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
+.steps-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; }
+.step { display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+.step:last-child { margin-bottom:0; }
+.step-num { width:22px; height:22px; border-radius:50%; background:var(--teal-dim); color:var(--teal); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-text { font-size:12px; color:var(--text-sec); line-height:1.5; }
+.step-text strong { color:var(--text-pri); font-weight:600; }
+
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--radius); border:1px solid var(--border-hi); background:var(--bg-raised); color:var(--text-sec); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.btn:hover { color:var(--text-pri); background:var(--bg-panel); }
+.btn-teal { background:var(--teal); border-color:var(--teal); color:white; }
+.btn-teal:hover { background:#228c7e; border-color:#228c7e; color:white; }
+.btn-full { width:100%; justify-content:center; }
+.btn-sm { padding:5px 10px; font-size:11px; }
+
+.toast { position:fixed; bottom:16px; right:16px; background:var(--text-pri); color:white; padding:8px 16px; border-radius:var(--radius); font-size:12px; z-index:9999; opacity:0; transform:translateY(6px); transition:all 0.2s; pointer-events:none; }
+.toast.show { opacity:1; transform:translateY(0); }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border-hi); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        <i class="fa-solid fa-tower-broadcast"></i>
+        <div class="logo-text">
+            <span class="name">JH Radio</span>
+            <span class="sub">DJ Companion — Set Prep</span>
+        </div>
+    </div>
+    <span id="upload-status" style="font-size:11px;color:var(--text-dim)"></span>
+</header>
+
+<div class="main">
+    <div class="left">
+
+        <div>
+            <span class="section-label">Add Local Files</span>
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="file-input" accept="audio/*" multiple>
+                <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <div class="drop-title">Drop MP3s here or click to browse</div>
+                <div class="drop-sub">Auto-uploads to catbox.moe — no account needed</div>
+            </div>
+        </div>
+
+        <div>
+            <span class="section-label">Add Stream URL</span>
+            <div class="url-row">
+                <input type="text" class="input" id="url-input" placeholder="https://direct-audio-url.com/stream.mp3">
+                <input type="text" class="input" id="url-title" placeholder="Title" style="max-width:150px">
+                <button class="btn btn-teal" onclick="addUrl()"><i class="fa-solid fa-plus"></i> Add</button>
+            </div>
+        </div>
+
+        <div style="flex:1">
+            <span class="section-label">Crate</span>
+            <div class="crate-card">
+                <div class="crate-header">
+                    <div class="crate-header-left">
+                        <span style="font-size:13px;font-weight:600">Tracks</span>
+                        <span class="crate-count" id="crate-count">0</span>
+                    </div>
+                    <button class="btn btn-sm" onclick="clearCrate()"><i class="fa-solid fa-trash"></i> Clear</button>
+                </div>
+                <div class="crate-body" id="crate-body">
+                    <div class="crate-empty" id="crate-empty">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Crate is empty</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="right">
+
+        <div class="link-card">
+            <h3><i class="fa-solid fa-link" style="color:var(--teal);margin-right:8px"></i>In-Game Crate Link</h3>
+            <div class="link-box" id="link-box">
+                <span class="link-placeholder">Add tracks to generate your crate link</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <button class="btn btn-teal" style="flex:1" onclick="copyLink()"><i class="fa-solid fa-copy"></i> Copy Link</button>
+                <button class="btn" onclick="generateLink()"><i class="fa-solid fa-rotate"></i></button>
+            </div>
+            <div style="font-size:11px;color:var(--text-dim);line-height:1.7">
+                Only tracks marked <span style="color:var(--teal);font-weight:600">Ready</span> are included. Paste this into the booth Stream URL field before going live.
+            </div>
+        </div>
+
+        <div class="steps-card">
+            <h3><i class="fa-solid fa-list-ol" style="color:var(--teal);margin-right:8px"></i>How to Use</h3>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">Add your tracks here — drop MP3s or paste URLs. Wait for uploads to finish.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text"><strong>Copy the crate link</strong> once all tracks show Ready.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">In-game, open the booth and paste the link into the <strong>Stream URL</strong> field.</div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">Your full crate loads into the booth. <strong>Pick tracks, load decks, go live</strong> — all in-game.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const crate = []
+
+function toast(msg, dur = 2500) {
+    const el = document.getElementById('toast')
+    el.textContent = msg
+    el.classList.add('show')
+    setTimeout(() => el.classList.remove('show'), dur)
+}
+
+function renderCrate() {
+    const body = document.getElementById('crate-body')
+    const empty = document.getElementById('crate-empty')
+    document.getElementById('crate-count').textContent = crate.length
+
+    if (!crate.length) {
+        body.innerHTML = ''
+        body.appendChild(empty)
+        generateLink()
+        return
+    }
+
+    body.innerHTML = ''
+    crate.forEach((track, i) => {
+        const row = document.createElement('div')
+        row.className = 'track-row'
+
+        let statusHtml
+        if (track.status === 'uploading') {
+            statusHtml = `<span class="track-status uploading"><i class="fa-solid fa-spinner fa-spin"></i> ${track.progress || 0}%</span>`
+        } else if (track.status === 'error') {
+            statusHtml = `<span class="track-status error">Failed</span>`
+        } else {
+            statusHtml = `<span class="track-status ready">Ready</span>`
+        }
+
+        const progressHtml = track.status === 'uploading'
+            ? `<div class="upload-progress"><div class="upload-progress-fill" style="width:${track.progress||0}%"></div></div>`
+            : ''
+
+        row.innerHTML = `
+            <div class="track-icon ${track.type}">
+                <i class="fa-solid ${track.type === 'local' ? 'fa-file-audio' : 'fa-link'}"></i>
+            </div>
+            <div class="track-info">
+                <div class="track-name">${track.title}</div>
+                <div class="track-meta">${track.type === 'local' ? 'Local upload' : 'Stream URL'}${progressHtml}</div>
+            </div>
+            ${statusHtml}
+            <button class="track-remove" onclick="removeTrack(${i})"><i class="fa-solid fa-xmark"></i></button>
+        `
+        body.appendChild(row)
+    })
+
+    generateLink()
+}
+
+function removeTrack(i) {
+    crate.splice(i, 1)
+    renderCrate()
+}
+
+function clearCrate() {
+    crate.length = 0
+    renderCrate()
+}
+
+async function uploadFile(file, index) {
+    const formData = new FormData()
+    formData.append('reqtype', 'fileupload')
+    formData.append('fileToUpload', file)
+
+    try {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', 'https://corsproxy.io/?https://catbox.moe/user/api.php')
+        xhr.upload.onprogress = e => {
+            if (e.lengthComputable) {
+                crate[index].progress = Math.round(e.loaded / e.total * 100)
+                renderCrate()
+            }
+        }
+        const result = await new Promise((res, rej) => {
+            xhr.onload = () => res(xhr.responseText.trim())
+            xhr.onerror = () => rej()
+            xhr.send(formData)
+        })
+        if (result.startsWith('https://')) {
+            crate[index].url = result
+            crate[index].status = 'ready'
+            toast(`Uploaded: ${file.name}`)
+        } else {
+            throw new Error()
+        }
+    } catch {
+        crate[index].status = 'error'
+        toast(`Failed to upload: ${file.name}`)
+    }
+
+    renderCrate()
+    const pending = crate.filter(t => t.status === 'uploading').length
+    document.getElementById('upload-status').textContent = pending ? `${pending} uploading...` : ''
+}
+
+function handleFiles(files) {
+    Array.from(files).forEach(file => {
+        if (!file.type.startsWith('audio/')) return
+        const index = crate.length
+        crate.push({ title: file.name.replace(/\.[^.]+$/, ''), url: null, type: 'local', status: 'uploading', progress: 0 })
+        renderCrate()
+        document.getElementById('upload-status').textContent = 'Uploading...'
+        uploadFile(file, index)
+    })
+}
+
+document.getElementById('file-input').addEventListener('change', e => handleFiles(e.target.files))
+
+const dz = document.getElementById('drop-zone')
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over') })
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'))
+dz.addEventListener('drop', e => {
+    e.preventDefault()
+    dz.classList.remove('drag-over')
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files)
+})
+
+function addUrl() {
+    const url = document.getElementById('url-input').value.trim()
+    const title = document.getElementById('url-title').value.trim()
+    if (!url) { toast('Enter a URL first'); return }
+    crate.push({ title: title || url, url, type: 'url', status: 'ready' })
+    document.getElementById('url-input').value = ''
+    document.getElementById('url-title').value = ''
+    renderCrate()
+    toast('Added to crate')
+}
+
+document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') addUrl() })
+
+function generateLink() {
+    const ready = crate.filter(t => t.status === 'ready' && t.url)
+    if (!ready.length) {
+        document.getElementById('link-box').innerHTML = '<span class="link-placeholder">Add tracks to generate your crate link</span>'
+        return null
+    }
+    const data = ready.map(t => ({ t: t.title, u: t.url }))
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
+    const link = `jhradio://crate/${encoded}`
+    document.getElementById('link-box').textContent = link
+    return link
+}
+
+function copyLink() {
+    const link = generateLink()
+    if (!link) { toast('No ready tracks yet'); return }
+    navigator.clipboard.writeText(link).then(() => toast('Link copied — paste into the booth Stream URL field'))
+}
+</script>
+</body>
+</html>
