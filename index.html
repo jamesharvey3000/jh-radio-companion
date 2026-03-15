@@ -66,6 +66,7 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
 
 .track-num { font-size:11px; font-family:monospace; color:var(--text-dim); width:18px; text-align:center; flex-shrink:0; }
 .track-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+.track-icon.youtube { background:rgba(255,0,0,0.1); color:#ff0000; }
 .track-icon.dropbox { background:rgba(0,97,255,0.1); color:#0061ff; }
 .track-icon.drive { background:rgba(66,133,244,0.1); color:#4285f4; }
 .track-icon.stream { background:var(--orange-dim); color:#c07020; }
@@ -139,7 +140,10 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
             <h3><i class="fa-solid fa-plus" style="color:var(--teal);margin-right:8px"></i>Add Track</h3>
 
             <div class="source-tabs">
-                <button class="source-tab active" data-source="dropbox" onclick="setSource('dropbox',this)">
+                <button class="source-tab active" data-source="youtube" onclick="setSource('youtube',this)">
+                    <i class="fa-brands fa-youtube"></i> YouTube
+                </button>
+                <button class="source-tab" data-source="dropbox" onclick="setSource('dropbox',this)">
                     <i class="fa-brands fa-dropbox"></i> Dropbox
                 </button>
                 <button class="source-tab" data-source="drive" onclick="setSource('drive',this)">
@@ -214,6 +218,15 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
 
             <div style="margin-bottom:14px">
                 <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">
+                    <i class="fa-brands fa-youtube" style="color:#ff0000"></i> YouTube
+                </div>
+                <div style="font-size:12px;color:var(--text-sec);line-height:1.7">
+                    Paste any YouTube URL and hit Add. Audio is extracted automatically via Piped — no account needed. Note: stream URLs expire after a few hours so prep your crate close to your set time.
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">
                     <i class="fa-brands fa-dropbox" style="color:#0061ff"></i> Dropbox
                 </div>
                 <div style="font-size:12px;color:var(--text-sec);line-height:1.7">
@@ -255,6 +268,7 @@ let previewIndex = null
 const audio = document.getElementById('preview-audio')
 
 const hints = {
+    youtube: `Paste any YouTube URL. The audio stream is extracted automatically via Piped — no account needed. This may take a few seconds.`,
     dropbox: `Share your MP3 from Dropbox and change <code>?dl=0</code> → <code>?dl=1</code> at the end of the link.`,
     drive: `Share as "Anyone with link" in Google Drive. Replace the URL with:<br><code>https://drive.google.com/uc?export=download&id=YOUR_FILE_ID</code>`,
     stream: `Paste a direct Icecast/Shoutcast or internet radio stream URL. Any <code>.mp3</code> or <code>.ogg</code> stream works.`,
@@ -262,10 +276,73 @@ const hints = {
 }
 
 const placeholders = {
+    youtube: 'https://www.youtube.com/watch?v=...',
     dropbox: 'https://www.dropbox.com/s/abc123/track.mp3?dl=1',
     drive:   'https://drive.google.com/uc?export=download&id=...',
     stream:  'http://stream.example.com:8000/live',
     other:   'https://example.com/audio/track.mp3'
+}
+
+const PIPED_INSTANCES = [
+    'https://pipedapi.kavin.rocks',
+    'https://piped-api.garudalinux.org',
+    'https://api.piped.yt',
+    'https://pipedapi.correctness.nl'
+]
+
+function extractVideoId(url) {
+    try {
+        const u = new URL(url)
+        if (u.hostname.includes('youtube.com')) return u.searchParams.get('v')
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1)
+    } catch {}
+    return null
+}
+
+async function fetchFromPiped(videoId) {
+    for (const instance of PIPED_INSTANCES) {
+        try {
+            const res = await fetch(`${instance}/streams/${videoId}`)
+            if (!res.ok) continue
+            const data = await res.json()
+            if (!data.audioStreams || !data.audioStreams.length) continue
+            const best = data.audioStreams
+                .filter(s => !s.videoOnly)
+                .sort((a, b) => b.bitrate - a.bitrate)[0]
+            return { url: best.url, title: data.title }
+        } catch {}
+    }
+    return null
+}
+
+async function addYouTubeTrack() {
+    const url = document.getElementById('url-input').value.trim()
+    const customTitle = document.getElementById('url-title').value.trim()
+    const videoId = extractVideoId(url)
+
+    if (!videoId) { toast('Not a valid YouTube URL'); return }
+
+    const btn = document.querySelector('.url-row .btn-teal')
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'
+    btn.disabled = true
+
+    const result = await fetchFromPiped(videoId)
+
+    btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add'
+    btn.disabled = false
+
+    if (!result) { toast('Could not fetch audio — all Piped instances failed. Try again shortly.'); return }
+
+    crate.push({
+        title: customTitle || result.title || `YouTube: ${videoId}`,
+        url: result.url,
+        source: 'youtube'
+    })
+
+    document.getElementById('url-input').value = ''
+    document.getElementById('url-title').value = ''
+    renderCrate()
+    toast('YouTube track added')
 }
 
 function setSource(source, btn) {
@@ -276,7 +353,7 @@ function setSource(source, btn) {
     document.getElementById('url-input').placeholder = placeholders[source]
 }
 
-setSource('dropbox', document.querySelector('[data-source="dropbox"]'))
+setSource('youtube', document.querySelector('[data-source="youtube"]'))
 
 function toast(msg, dur=2500) {
     const el = document.getElementById('toast')
@@ -286,11 +363,11 @@ function toast(msg, dur=2500) {
 }
 
 function iconClass(source) {
-    return { dropbox:'dropbox', drive:'drive', stream:'stream', other:'other' }[source] || 'other'
+    return { youtube:'youtube', dropbox:'dropbox', drive:'drive', stream:'stream', other:'other' }[source] || 'other'
 }
 
 function iconName(source) {
-    return { dropbox:'fa-brands fa-dropbox', drive:'fa-brands fa-google-drive', stream:'fa-solid fa-signal', other:'fa-solid fa-link' }[source] || 'fa-solid fa-link'
+    return { youtube:'fa-brands fa-youtube', dropbox:'fa-brands fa-dropbox', drive:'fa-brands fa-google-drive', stream:'fa-solid fa-signal', other:'fa-solid fa-link' }[source] || 'fa-solid fa-link'
 }
 
 function renderCrate() {
@@ -344,6 +421,8 @@ function renderCrate() {
 }
 
 function addTrack() {
+    if (activeSource === 'youtube') { addYouTubeTrack(); return }
+
     let url = document.getElementById('url-input').value.trim()
     const title = document.getElementById('url-title').value.trim()
 
