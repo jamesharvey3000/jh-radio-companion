@@ -19,71 +19,94 @@
 }
 body { background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; font-size:13px; color:var(--text-pri); min-height:100vh; display:flex; flex-direction:column; }
 
-header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:0 28px; height:52px; display:flex; align-items:center; justify-content:space-between; }
+header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:0 28px; height:52px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
 .logo { display:flex; align-items:center; gap:10px; color:var(--teal); font-size:18px; }
 .logo-text { display:flex; flex-direction:column; line-height:1.2; }
 .logo-text .name { font-size:13px; font-weight:700; color:var(--text-pri); letter-spacing:0.06em; }
 .logo-text .sub { font-size:10px; color:var(--teal); font-family:monospace; }
 
-.main { flex:1; display:grid; grid-template-columns:1fr 300px; gap:24px; padding:24px; max-width:1000px; width:100%; margin:0 auto; }
+.main { flex:1; display:grid; grid-template-columns:1fr 320px; gap:20px; padding:20px; max-width:1060px; width:100%; margin:0 auto; }
 .left { display:flex; flex-direction:column; gap:16px; }
 .right { display:flex; flex-direction:column; gap:16px; }
 
-.section-label { font-size:9px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:10px; display:block; }
+.section-label { font-size:9px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; display:block; }
 
-.drop-zone { background:var(--bg-card); border:2px dashed var(--border-hi); border-radius:var(--radius-lg); padding:28px; text-align:center; cursor:pointer; transition:all 0.15s; position:relative; }
-.drop-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-.drop-zone:hover, .drop-zone.drag-over { border-color:var(--teal); background:var(--teal-dim); }
-.drop-icon { font-size:26px; color:var(--teal); margin-bottom:8px; }
-.drop-title { font-size:14px; font-weight:600; color:var(--text-pri); margin-bottom:4px; }
-.drop-sub { font-size:11px; color:var(--text-dim); }
+.add-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
+.add-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; color:var(--text-pri); }
 
-.url-row { display:flex; gap:8px; }
-.input { flex:1; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-pri); font-size:12px; padding:8px 11px; outline:none; transition:border-color 0.15s; }
+.url-row { display:flex; gap:8px; margin-bottom:10px; }
+.input { flex:1; background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-pri); font-size:12px; padding:8px 11px; outline:none; transition:border-color 0.15s; }
 .input:focus { border-color:var(--teal); }
 .input::placeholder { color:var(--text-dim); }
+.input-title { max-width:160px; }
+
+.source-tabs { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.source-tab { padding:5px 12px; border-radius:999px; border:1px solid var(--border); background:none; font-size:11px; font-weight:600; cursor:pointer; color:var(--text-sec); transition:all 0.15s; }
+.source-tab:hover { border-color:var(--border-hi); color:var(--text-pri); }
+.source-tab.active { background:var(--teal-dim); border-color:rgba(42,157,143,0.3); color:var(--teal); }
+
+.source-hint { background:var(--bg-raised); border-radius:var(--radius); padding:12px 14px; font-size:12px; color:var(--text-sec); line-height:1.7; margin-bottom:14px; border:1px solid var(--border); }
+.source-hint code { font-family:monospace; font-size:11px; background:var(--bg-panel); padding:2px 6px; border-radius:4px; color:var(--teal); }
+.source-hint a { color:var(--teal); text-decoration:none; }
+.source-hint a:hover { text-decoration:underline; }
 
 .crate-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; flex:1; }
-.crate-header { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg-panel); }
+.crate-header { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid var(--border); background:var(--bg-panel); }
 .crate-header-left { display:flex; align-items:center; gap:8px; }
 .crate-count { background:var(--teal-dim); color:var(--teal); font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
-.crate-body { max-height:320px; overflow-y:auto; }
-.crate-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:140px; gap:8px; color:var(--text-dim); }
+.crate-body { overflow-y:auto; }
+.crate-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; height:160px; gap:8px; color:var(--text-dim); }
 .crate-empty i { font-size:22px; }
 
-.track-row { display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border); transition:background 0.1s; }
+.track-row { display:flex; align-items:center; gap:10px; padding:9px 16px; border-bottom:1px solid var(--border); transition:background 0.1s; cursor:grab; user-select:none; }
 .track-row:last-child { border-bottom:none; }
 .track-row:hover { background:var(--bg-raised); }
+.track-row.dragging { opacity:0.4; }
+.track-row.drag-over { border-top:2px solid var(--teal); }
+
+.track-num { font-size:11px; font-family:monospace; color:var(--text-dim); width:18px; text-align:center; flex-shrink:0; }
 .track-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
-.track-icon.local { background:var(--teal-dim); color:var(--teal); }
-.track-icon.url { background:var(--saffron-dim); color:#8a6a00; }
+.track-icon.dropbox { background:rgba(0,97,255,0.1); color:#0061ff; }
+.track-icon.drive { background:rgba(66,133,244,0.1); color:#4285f4; }
+.track-icon.stream { background:var(--orange-dim); color:#c07020; }
+.track-icon.other { background:var(--teal-dim); color:var(--teal); }
+
 .track-info { flex:1; overflow:hidden; }
 .track-name { font-size:12px; font-weight:500; color:var(--text-pri); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.track-meta { font-size:10px; color:var(--text-dim); font-family:monospace; margin-top:2px; }
-.track-status { font-size:9px; padding:2px 7px; border-radius:999px; flex-shrink:0; }
-.track-status.ready { background:var(--teal-dim); color:var(--teal); }
-.track-status.uploading { background:var(--orange-dim); color:#b06000; }
-.track-status.error { background:var(--red-dim); color:var(--red); }
+.track-meta { font-size:10px; color:var(--text-dim); font-family:monospace; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.track-test { width:22px; height:22px; border:1px solid var(--border); border-radius:50%; background:none; color:var(--text-dim); font-size:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+.track-test:hover { border-color:var(--teal); color:var(--teal); }
+.track-test.playing { background:var(--teal); border-color:var(--teal); color:white; }
+
 .track-remove { width:22px; height:22px; border:none; background:none; color:var(--text-dim); font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:var(--radius); transition:all 0.15s; }
 .track-remove:hover { background:var(--red-dim); color:var(--red); }
-.upload-progress { height:2px; background:var(--border); border-radius:1px; overflow:hidden; margin-top:4px; }
-.upload-progress-fill { height:100%; background:var(--teal); border-radius:1px; transition:width 0.2s; }
 
 .link-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
 .link-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; }
 .link-box { background:var(--bg-raised); border:1px solid var(--border); border-radius:var(--radius); padding:10px 12px; font-family:monospace; font-size:10px; color:var(--text-sec); word-break:break-all; min-height:52px; line-height:1.6; margin-bottom:10px; }
 .link-placeholder { color:var(--text-dim); font-style:italic; }
 
-.steps-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
-.steps-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; }
-.step { display:flex; gap:12px; margin-bottom:12px; align-items:flex-start; }
+.how-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
+.how-card h3 { font-size:13px; font-weight:600; margin-bottom:14px; }
+.step { display:flex; gap:10px; margin-bottom:10px; align-items:flex-start; }
 .step:last-child { margin-bottom:0; }
-.step-num { width:22px; height:22px; border-radius:50%; background:var(--teal-dim); color:var(--teal); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-num { width:20px; height:20px; border-radius:50%; background:var(--teal-dim); color:var(--teal); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
 .step-text { font-size:12px; color:var(--text-sec); line-height:1.5; }
 .step-text strong { color:var(--text-pri); font-weight:600; }
 
-.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--radius); border:1px solid var(--border-hi); background:var(--bg-raised); color:var(--text-sec); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
-.btn:hover { color:var(--text-pri); background:var(--bg-panel); }
+.now-playing-bar { display:flex; align-items:center; gap:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:12px 16px; }
+.np-icon { width:32px; height:32px; border-radius:50%; background:var(--teal-dim); color:var(--teal); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0; }
+.np-info { flex:1; overflow:hidden; }
+.np-title { font-size:12px; font-weight:500; color:var(--text-pri); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.np-source { font-size:10px; color:var(--text-dim); margin-top:2px; }
+.np-prog { height:3px; background:var(--bg-raised); border-radius:2px; overflow:hidden; margin-top:6px; }
+.np-prog-fill { height:100%; width:0%; background:var(--teal); transition:width 0.5s; }
+.np-stop { width:28px; height:28px; border:1px solid var(--border); border-radius:50%; background:none; color:var(--text-sec); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; transition:all 0.15s; }
+.np-stop:hover { border-color:var(--red); color:var(--red); }
+
+.btn { display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:var(--radius); border:1px solid var(--border-hi); background:var(--bg-raised); color:var(--text-sec); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.btn:hover { color:var(--text-pri); }
 .btn-teal { background:var(--teal); border-color:var(--teal); color:white; }
 .btn-teal:hover { background:#228c7e; border-color:#228c7e; color:white; }
 .btn-full { width:100%; justify-content:center; }
@@ -106,33 +129,41 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
             <span class="sub">DJ Companion — Set Prep</span>
         </div>
     </div>
-    <span id="upload-status" style="font-size:11px;color:var(--text-dim)"></span>
+    <span style="font-size:11px;color:var(--text-dim)" id="playing-label"></span>
 </header>
 
 <div class="main">
     <div class="left">
 
-        <div>
-            <span class="section-label">Add Local Files</span>
-            <div class="drop-zone" id="drop-zone">
-                <input type="file" id="file-input" accept="audio/*" multiple>
-                <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                <div class="drop-title">Drop MP3s here or click to browse</div>
-                <div class="drop-sub">Auto-uploads to catbox.moe — no account needed</div>
-            </div>
-        </div>
+        <div class="add-card">
+            <h3><i class="fa-solid fa-plus" style="color:var(--teal);margin-right:8px"></i>Add Track</h3>
 
-        <div>
-            <span class="section-label">Add Stream URL</span>
+            <div class="source-tabs">
+                <button class="source-tab active" data-source="dropbox" onclick="setSource('dropbox',this)">
+                    <i class="fa-brands fa-dropbox"></i> Dropbox
+                </button>
+                <button class="source-tab" data-source="drive" onclick="setSource('drive',this)">
+                    <i class="fa-brands fa-google-drive"></i> Google Drive
+                </button>
+                <button class="source-tab" data-source="stream" onclick="setSource('stream',this)">
+                    <i class="fa-solid fa-signal"></i> Stream URL
+                </button>
+                <button class="source-tab" data-source="other" onclick="setSource('other',this)">
+                    <i class="fa-solid fa-link"></i> Other URL
+                </button>
+            </div>
+
+            <div id="source-hint" class="source-hint"></div>
+
             <div class="url-row">
-                <input type="text" class="input" id="url-input" placeholder="https://direct-audio-url.com/stream.mp3">
-                <input type="text" class="input" id="url-title" placeholder="Title" style="max-width:150px">
-                <button class="btn btn-teal" onclick="addUrl()"><i class="fa-solid fa-plus"></i> Add</button>
+                <input type="text" class="input" id="url-input" placeholder="Paste your URL here...">
+                <input type="text" class="input input-title" id="url-title" placeholder="Track title">
+                <button class="btn btn-teal" onclick="addTrack()"><i class="fa-solid fa-plus"></i> Add</button>
             </div>
         </div>
 
         <div style="flex:1">
-            <span class="section-label">Crate</span>
+            <span class="section-label">Crate — <span id="crate-count-label">0 tracks</span></span>
             <div class="crate-card">
                 <div class="crate-header">
                     <div class="crate-header-left">
@@ -150,6 +181,16 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
             </div>
         </div>
 
+        <div class="now-playing-bar" id="now-playing-bar" style="display:none">
+            <div class="np-icon"><i class="fa-solid fa-music"></i></div>
+            <div class="np-info">
+                <div class="np-title" id="np-title">—</div>
+                <div class="np-source" id="np-source">Preview</div>
+                <div class="np-prog"><div class="np-prog-fill" id="np-prog"></div></div>
+            </div>
+            <button class="np-stop" onclick="stopPreview()" title="Stop"><i class="fa-solid fa-stop"></i></button>
+        </div>
+
     </div>
 
     <div class="right">
@@ -160,31 +201,43 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
                 <span class="link-placeholder">Add tracks to generate your crate link</span>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:12px">
-                <button class="btn btn-teal" style="flex:1" onclick="copyLink()"><i class="fa-solid fa-copy"></i> Copy Link</button>
-                <button class="btn" onclick="generateLink()"><i class="fa-solid fa-rotate"></i></button>
+                <button class="btn btn-teal btn-full" onclick="copyLink()"><i class="fa-solid fa-copy"></i> Copy Link</button>
+                <button class="btn" onclick="generateLink()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
             </div>
             <div style="font-size:11px;color:var(--text-dim);line-height:1.7">
-                Only tracks marked <span style="color:var(--teal);font-weight:600">Ready</span> are included. Paste this into the booth Stream URL field before going live.
+                Paste into the booth <strong style="color:var(--text-sec)">Stream URL</strong> field and hit Load Crate before going live.
             </div>
         </div>
 
-        <div class="steps-card">
-            <h3><i class="fa-solid fa-list-ol" style="color:var(--teal);margin-right:8px"></i>How to Use</h3>
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-text">Add your tracks here — drop MP3s or paste URLs. Wait for uploads to finish.</div>
+        <div class="how-card">
+            <h3><i class="fa-solid fa-list-ol" style="color:var(--teal);margin-right:8px"></i>How to Get Direct URLs</h3>
+
+            <div style="margin-bottom:14px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">
+                    <i class="fa-brands fa-dropbox" style="color:#0061ff"></i> Dropbox
+                </div>
+                <div style="font-size:12px;color:var(--text-sec);line-height:1.7">
+                    Upload your MP3, click Share → Copy link. Change <code>?dl=0</code> to <code>?dl=1</code> at the end of the URL.
+                </div>
             </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-text"><strong>Copy the crate link</strong> once all tracks show Ready.</div>
+
+            <div style="margin-bottom:14px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">
+                    <i class="fa-brands fa-google-drive" style="color:#4285f4"></i> Google Drive
+                </div>
+                <div style="font-size:12px;color:var(--text-sec);line-height:1.7">
+                    Share file as Anyone with link. Copy the file ID from the URL and use:<br>
+                    <code>https://drive.google.com/uc?export=download&id=FILE_ID</code>
+                </div>
             </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-text">In-game, open the booth and paste the link into the <strong>Stream URL</strong> field.</div>
-            </div>
-            <div class="step">
-                <div class="step-num">4</div>
-                <div class="step-text">Your full crate loads into the booth. <strong>Pick tracks, load decks, go live</strong> — all in-game.</div>
+
+            <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px">
+                    <i class="fa-solid fa-signal" style="color:var(--orange)"></i> Stream URL
+                </div>
+                <div style="font-size:12px;color:var(--text-sec);line-height:1.7">
+                    Any direct <code>.mp3</code>, <code>.ogg</code>, or Icecast/Shoutcast stream URL works directly.
+                </div>
             </div>
         </div>
 
@@ -192,25 +245,61 @@ header { background:var(--bg-card); border-bottom:1px solid var(--border); paddi
 </div>
 
 <div class="toast" id="toast"></div>
+<audio id="preview-audio"></audio>
 
 <script>
 const crate = []
+let activeSource = 'dropbox'
+let dragIndex = null
+let previewIndex = null
+const audio = document.getElementById('preview-audio')
 
-function toast(msg, dur = 2500) {
+const hints = {
+    dropbox: `Share your MP3 from Dropbox and change <code>?dl=0</code> → <code>?dl=1</code> at the end of the link.`,
+    drive: `Share as "Anyone with link" in Google Drive. Replace the URL with:<br><code>https://drive.google.com/uc?export=download&id=YOUR_FILE_ID</code>`,
+    stream: `Paste a direct Icecast/Shoutcast or internet radio stream URL. Any <code>.mp3</code> or <code>.ogg</code> stream works.`,
+    other: `Any direct audio URL ending in <code>.mp3</code>, <code>.ogg</code>, <code>.wav</code>, or <code>.flac</code>.`
+}
+
+const placeholders = {
+    dropbox: 'https://www.dropbox.com/s/abc123/track.mp3?dl=1',
+    drive:   'https://drive.google.com/uc?export=download&id=...',
+    stream:  'http://stream.example.com:8000/live',
+    other:   'https://example.com/audio/track.mp3'
+}
+
+function setSource(source, btn) {
+    activeSource = source
+    document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    document.getElementById('source-hint').innerHTML = hints[source]
+    document.getElementById('url-input').placeholder = placeholders[source]
+}
+
+setSource('dropbox', document.querySelector('[data-source="dropbox"]'))
+
+function toast(msg, dur=2500) {
     const el = document.getElementById('toast')
     el.textContent = msg
     el.classList.add('show')
     setTimeout(() => el.classList.remove('show'), dur)
 }
 
+function iconClass(source) {
+    return { dropbox:'dropbox', drive:'drive', stream:'stream', other:'other' }[source] || 'other'
+}
+
+function iconName(source) {
+    return { dropbox:'fa-brands fa-dropbox', drive:'fa-brands fa-google-drive', stream:'fa-solid fa-signal', other:'fa-solid fa-link' }[source] || 'fa-solid fa-link'
+}
+
 function renderCrate() {
     const body = document.getElementById('crate-body')
-    const empty = document.getElementById('crate-empty')
     document.getElementById('crate-count').textContent = crate.length
+    document.getElementById('crate-count-label').textContent = `${crate.length} track${crate.length !== 1 ? 's' : ''}`
 
     if (!crate.length) {
-        body.innerHTML = ''
-        body.appendChild(empty)
+        body.innerHTML = '<div class="crate-empty"><i class="fa-solid fa-box-open"></i><span>Crate is empty</span></div>'
         generateLink()
         return
     }
@@ -219,125 +308,127 @@ function renderCrate() {
     crate.forEach((track, i) => {
         const row = document.createElement('div')
         row.className = 'track-row'
-
-        let statusHtml
-        if (track.status === 'uploading') {
-            statusHtml = `<span class="track-status uploading"><i class="fa-solid fa-spinner fa-spin"></i> ${track.progress || 0}%</span>`
-        } else if (track.status === 'error') {
-            statusHtml = `<span class="track-status error">Failed</span>`
-        } else {
-            statusHtml = `<span class="track-status ready">Ready</span>`
-        }
-
-        const progressHtml = track.status === 'uploading'
-            ? `<div class="upload-progress"><div class="upload-progress-fill" style="width:${track.progress||0}%"></div></div>`
-            : ''
-
+        row.draggable = true
+        const isPlaying = previewIndex === i && !audio.paused
         row.innerHTML = `
-            <div class="track-icon ${track.type}">
-                <i class="fa-solid ${track.type === 'local' ? 'fa-file-audio' : 'fa-link'}"></i>
-            </div>
+            <span class="track-num">${i + 1}</span>
+            <div class="track-icon ${iconClass(track.source)}"><i class="${iconName(track.source)}"></i></div>
             <div class="track-info">
                 <div class="track-name">${track.title}</div>
-                <div class="track-meta">${track.type === 'local' ? 'Local upload' : 'Stream URL'}${progressHtml}</div>
+                <div class="track-meta">${track.url}</div>
             </div>
-            ${statusHtml}
+            <button class="track-test ${isPlaying ? 'playing' : ''}" onclick="togglePreview(${i})" title="Preview">
+                <i class="fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>
+            </button>
             <button class="track-remove" onclick="removeTrack(${i})"><i class="fa-solid fa-xmark"></i></button>
         `
+        row.addEventListener('dragstart', () => { dragIndex = i; row.classList.add('dragging') })
+        row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.drag-over').forEach(r => r.classList.remove('drag-over')) })
+        row.addEventListener('dragover', e => { e.preventDefault(); row.classList.add('drag-over') })
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'))
+        row.addEventListener('drop', e => {
+            e.preventDefault()
+            row.classList.remove('drag-over')
+            if (dragIndex === null || dragIndex === i) return
+            const moved = crate.splice(dragIndex, 1)[0]
+            crate.splice(i, 0, moved)
+            if (previewIndex === dragIndex) previewIndex = i
+            dragIndex = null
+            renderCrate()
+            generateLink()
+        })
         body.appendChild(row)
     })
 
     generateLink()
 }
 
-function removeTrack(i) {
-    crate.splice(i, 1)
-    renderCrate()
-}
+function addTrack() {
+    let url = document.getElementById('url-input').value.trim()
+    const title = document.getElementById('url-title').value.trim()
 
-function clearCrate() {
-    crate.length = 0
-    renderCrate()
-}
+    if (!url) { toast('Paste a URL first'); return }
 
-async function uploadFile(file, index) {
-    const formData = new FormData()
-    formData.append('reqtype', 'fileupload')
-    formData.append('fileToUpload', file)
-
-    try {
-        const xhr = new XMLHttpRequest()
-        xhr.open('POST', 'https://catbox.moe/user/api.php')
-        xhr.upload.onprogress = e => {
-            if (e.lengthComputable) {
-                crate[index].progress = Math.round(e.loaded / e.total * 100)
-                renderCrate()
-            }
-        }
-        const result = await new Promise((res, rej) => {
-            xhr.onload = () => res(xhr.responseText.trim())
-            xhr.onerror = () => rej()
-            xhr.send(formData)
-        })
-        if (result.startsWith('https://')) {
-            crate[index].url = result
-            crate[index].status = 'ready'
-            toast(`Uploaded: ${file.name}`)
-        } else {
-            throw new Error()
-        }
-    } catch {
-        crate[index].status = 'error'
-        toast(`Failed to upload: ${file.name}`)
+    if (activeSource === 'dropbox' && url.includes('dl=0')) {
+        url = url.replace('dl=0', 'dl=1')
+        toast('Fixed Dropbox link automatically')
     }
 
-    renderCrate()
-    const pending = crate.filter(t => t.status === 'uploading').length
-    document.getElementById('upload-status').textContent = pending ? `${pending} uploading...` : ''
-}
-
-function handleFiles(files) {
-    Array.from(files).forEach(file => {
-        if (!file.type.startsWith('audio/')) return
-        const index = crate.length
-        crate.push({ title: file.name.replace(/\.[^.]+$/, ''), url: null, type: 'local', status: 'uploading', progress: 0 })
-        renderCrate()
-        document.getElementById('upload-status').textContent = 'Uploading...'
-        uploadFile(file, index)
-    })
-}
-
-document.getElementById('file-input').addEventListener('change', e => handleFiles(e.target.files))
-
-const dz = document.getElementById('drop-zone')
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over') })
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'))
-dz.addEventListener('drop', e => {
-    e.preventDefault()
-    dz.classList.remove('drag-over')
-    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files)
-})
-
-function addUrl() {
-    const url = document.getElementById('url-input').value.trim()
-    const title = document.getElementById('url-title').value.trim()
-    if (!url) { toast('Enter a URL first'); return }
-    crate.push({ title: title || url, url, type: 'url', status: 'ready' })
+    crate.push({ title: title || extractTitle(url), url, source: activeSource })
     document.getElementById('url-input').value = ''
     document.getElementById('url-title').value = ''
     renderCrate()
     toast('Added to crate')
 }
 
-document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') addUrl() })
+function extractTitle(url) {
+    try {
+        const parts = new URL(url).pathname.split('/')
+        const last = parts[parts.length - 1]
+        return decodeURIComponent(last).replace(/\.[^.]+$/, '') || url
+    } catch {
+        return url
+    }
+}
+
+document.getElementById('url-input').addEventListener('keydown', e => { if (e.key === 'Enter') addTrack() })
+
+function removeTrack(i) {
+    if (previewIndex === i) stopPreview()
+    crate.splice(i, 1)
+    renderCrate()
+}
+
+function clearCrate() {
+    stopPreview()
+    crate.length = 0
+    renderCrate()
+}
+
+function togglePreview(i) {
+    if (previewIndex === i && !audio.paused) {
+        audio.pause()
+        renderCrate()
+        return
+    }
+    previewIndex = i
+    const track = crate[i]
+    audio.src = track.url
+    audio.play().catch(() => toast('Could not play — check the URL'))
+    document.getElementById('now-playing-bar').style.display = 'flex'
+    document.getElementById('np-title').textContent = track.title
+    document.getElementById('np-source').textContent = track.source
+    document.getElementById('playing-label').textContent = `Previewing: ${track.title}`
+    renderCrate()
+}
+
+function stopPreview() {
+    audio.pause()
+    audio.src = ''
+    previewIndex = null
+    document.getElementById('now-playing-bar').style.display = 'none'
+    document.getElementById('playing-label').textContent = ''
+    renderCrate()
+}
+
+audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return
+    document.getElementById('np-prog').style.width = (audio.currentTime / audio.duration * 100) + '%'
+})
+
+audio.addEventListener('ended', () => {
+    previewIndex = null
+    document.getElementById('now-playing-bar').style.display = 'none'
+    document.getElementById('playing-label').textContent = ''
+    renderCrate()
+})
 
 function generateLink() {
-    const ready = crate.filter(t => t.status === 'ready' && t.url)
-    if (!ready.length) {
+    if (!crate.length) {
         document.getElementById('link-box').innerHTML = '<span class="link-placeholder">Add tracks to generate your crate link</span>'
         return null
     }
-    const data = ready.map(t => ({ t: t.title, u: t.url }))
+    const data = crate.map(t => ({ t: t.title, u: t.url }))
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
     const link = `jhradio://crate/${encoded}`
     document.getElementById('link-box').textContent = link
@@ -346,8 +437,8 @@ function generateLink() {
 
 function copyLink() {
     const link = generateLink()
-    if (!link) { toast('No ready tracks yet'); return }
-    navigator.clipboard.writeText(link).then(() => toast('Link copied — paste into the booth Stream URL field'))
+    if (!link) { toast('Add tracks first'); return }
+    navigator.clipboard.writeText(link).then(() => toast('Copied — paste into the booth Stream URL field'))
 }
 </script>
 </body>
