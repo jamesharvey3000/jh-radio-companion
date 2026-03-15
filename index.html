@@ -283,11 +283,11 @@ const placeholders = {
     other:   'https://example.com/audio/track.mp3'
 }
 
-const PIPED_INSTANCES = [
-    'https://pipedapi.kavin.rocks',
-    'https://piped-api.garudalinux.org',
-    'https://api.piped.yt',
-    'https://pipedapi.correctness.nl'
+const INVIDIOUS_INSTANCES = [
+    'https://yewtu.be',
+    'https://inv.nadeko.net',
+    'https://invidious.nerdvpn.de',
+    'https://invidious.privacydev.net'
 ]
 
 function extractVideoId(url) {
@@ -301,17 +301,18 @@ function extractVideoId(url) {
 
 const PROXY = 'https://jh-radio-proxy.birdiesawyer.workers.dev'
 
-async function fetchFromPiped(videoId) {
-    for (const instance of PIPED_INSTANCES) {
+async function fetchFromInvidious(videoId) {
+    for (const instance of INVIDIOUS_INSTANCES) {
         try {
-            const target = encodeURIComponent(`${instance}/streams/${videoId}`)
+            const target = encodeURIComponent(`${instance}/api/v1/videos/${videoId}?fields=title,adaptiveFormats`)
             const res = await fetch(`${PROXY}?url=${target}`)
             if (!res.ok) continue
             const data = await res.json()
-            if (!data.audioStreams || !data.audioStreams.length) continue
-            const best = data.audioStreams
-                .filter(s => !s.videoOnly)
-                .sort((a, b) => b.bitrate - a.bitrate)[0]
+            if (!data.adaptiveFormats) continue
+            const best = data.adaptiveFormats
+                .filter(f => f.type && f.type.startsWith('audio/') && f.url)
+                .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0]
+            if (!best) continue
             return { url: best.url, title: data.title }
         } catch {}
     }
@@ -329,12 +330,12 @@ async function addYouTubeTrack() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'
     btn.disabled = true
 
-    const result = await fetchFromPiped(videoId)
+    const result = await fetchFromInvidious(videoId)
 
     btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add'
     btn.disabled = false
 
-    if (!result) { toast('Could not fetch audio — all Piped instances failed. Try again shortly.'); return }
+    if (!result) { toast('Could not fetch audio — all Invidious instances failed. Try again shortly.'); return }
 
     crate.push({
         title: customTitle || result.title || `YouTube: ${videoId}`,
