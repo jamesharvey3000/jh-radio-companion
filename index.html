@@ -283,39 +283,22 @@ const placeholders = {
     other:   'https://example.com/audio/track.mp3'
 }
 
-const INVIDIOUS_INSTANCES = [
-    'https://yewtu.be',
-    'https://inv.nadeko.net',
-    'https://invidious.nerdvpn.de',
-    'https://invidious.privacydev.net'
-]
-
-function extractVideoId(url) {
-    try {
-        const u = new URL(url)
-        if (u.hostname.includes('youtube.com')) return u.searchParams.get('v')
-        if (u.hostname === 'youtu.be') return u.pathname.slice(1)
-    } catch {}
-    return null
-}
-
 const PROXY = 'https://jh-radio-proxy.birdiesawyer.workers.dev'
 
-async function fetchFromInvidious(videoId) {
-    for (const instance of INVIDIOUS_INSTANCES) {
-        try {
-            const target = encodeURIComponent(`${instance}/api/v1/videos/${videoId}?fields=title,adaptiveFormats`)
-            const res = await fetch(`${PROXY}?url=${target}`)
-            if (!res.ok) continue
-            const data = await res.json()
-            if (!data.adaptiveFormats) continue
-            const best = data.adaptiveFormats
-                .filter(f => f.type && f.type.startsWith('audio/') && f.url)
-                .sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0))[0]
-            if (!best) continue
-            return { url: best.url, title: data.title }
-        } catch {}
-    }
+async function fetchFromYtDlp(videoId) {
+    try {
+        const ytUrl = encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)
+        const target = encodeURIComponent(`https://yozora.vercel.app/api/info?query=${ytUrl}`)
+        const res = await fetch(`${PROXY}?url=${target}`)
+        if (!res.ok) return null
+        const data = await res.json()
+        if (!data.formats) return null
+        const best = data.formats
+            .filter(f => f.acodec && f.acodec !== 'none' && (!f.vcodec || f.vcodec === 'none') && f.url)
+            .sort((a, b) => (b.abr || 0) - (a.abr || 0))[0]
+        if (!best) return null
+        return { url: best.url, title: data.title }
+    } catch {}
     return null
 }
 
@@ -330,12 +313,12 @@ async function addYouTubeTrack() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'
     btn.disabled = true
 
-    const result = await fetchFromInvidious(videoId)
+    const result = await fetchFromYtDlp(videoId)
 
     btn.innerHTML = '<i class="fa-solid fa-plus"></i> Add'
     btn.disabled = false
 
-    if (!result) { toast('Could not fetch audio — all Invidious instances failed. Try again shortly.'); return }
+    if (!result) { toast('Could not fetch audio — try again in a moment.'); return }
 
     crate.push({
         title: customTitle || result.title || `YouTube: ${videoId}`,
